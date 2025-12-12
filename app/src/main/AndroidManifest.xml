@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".app.App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -11,6 +12,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Sgionoteskt">
+        <activity
+            android:name=".features.etiqueta_detalle.view.EtiquetaDetalleActivity"
+            android:exported="false" />
+        <activity
+            android:name=".features.nota_detalle.view.NotaDetalleActivity"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
