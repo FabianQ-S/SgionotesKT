@@ -2,4 +2,43 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="whiteSecondary">#EDEBEB</color>
+    <color name="red">#FF0000</color>
+    <color name="gray">#5D5D5D</color>
+    <color name="purple">#673ab7</color>
+    <color name="blue">#0042ff</color>
+    <color name="orange">#ff7000</color>
+    <color name="cian">#00f3ff</color>
+
+    <color name="primary">#2f73ab</color>
+    <color name="primaryDark">#1a5789</color>
+
+    <color name="textSecondary">#6E6E73</color>
+    <color name="accent">#FFB84C</color>
+    <color name="toolbarTitleBackground">?attr/boxBackgroundColor</color>
+    <color name="alternateColor">#000</color>
+
+    <color name="startGradient">#4DD0E1</color>
+    <color name="endGradient">#0042ff</color>
+
+    <!-- Papelera -->
+    <color name="trashButtonColor">@color/cian</color>
+
+    <!-- ChipsColors -->
+    <color name="chipBackground">#F0F0F0</color>
+    <color name="chipText">#424242</color>
+    <color name="chipBackgroundColor">@color/chipBackground</color>
+    <color name="chipStrokeColor">#BDBDBD</color>
+
+    <!-- FiltrerColor -->
+    <color name="chipSelectedBackground">#B3E5FC</color>
+    <color name="chipSelectedText">#01579B</color>
+
+    <!-- ColoresTemaOscuro -->
+    <color name="chipSelectedBackgroundDark">#512DA8</color>
+    <color name="chipSelectedTextDark">#E1BEE7</color>
+
+    <!-- PopupColors -->
+    <color name="popupMenuBackgroundColor">#D1C4E9</color>
+    <color name="popupMenuStrokeColor">#9575CD</color>
 </resources>
