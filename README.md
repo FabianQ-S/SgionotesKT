@@ -1,6 +1,6 @@
 <!-- Centrado y con ancho máximo de 300px -->
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/45ceaea1-858f-40df-b4f0-b404bf5db2f7" alt="SmartGioNotes" width="300px" />
+  <img src="icon.jpeg" alt="SLocalNotesKT" width="300px" />
 </p>
 
 # SmartGioNotesKT 📍🗺️🚀
