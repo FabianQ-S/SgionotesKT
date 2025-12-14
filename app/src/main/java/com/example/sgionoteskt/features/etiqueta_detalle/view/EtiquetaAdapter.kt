@@ -32,7 +32,12 @@ class EtiquetaAdapter(
     override fun onBindViewHolder(holder: EtiquetaViewHolder, position: Int) {
         val etiqueta = etiquetas[position]
         holder.tvNombre.text = etiqueta.nombre
-        holder.ivIcono.setImageResource(R.drawable.tag_icon)
+
+        if (etiqueta.esFavorito == 1) {
+            holder.ivIcono.setImageResource(R.drawable.ic_star_outline)
+        } else {
+            holder.ivIcono.setImageResource(R.drawable.tag_icon)
+        }
 
         holder.cbSeleccionar.isChecked = seleccionadas.contains(etiqueta.idEtiqueta)
 

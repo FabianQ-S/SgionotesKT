@@ -272,12 +272,28 @@ class NotaDetalleActivity : AppCompatActivity() {
         etiquetas.forEach { etiqueta ->
             val chip = Chip(this).apply {
                 text = etiqueta.nombre
-                isClickable = false
+                isClickable = true
                 isCheckable = false
+                isCloseIconVisible = true
                 setChipBackgroundColorResource(R.color.chipSelectedText)
                 setTextColor(Color.WHITE)
+                closeIconTint = android.content.res.ColorStateList.valueOf(Color.WHITE)
+                setOnCloseIconClickListener {
+                    eliminarEtiquetaDeNota(etiqueta.idEtiqueta)
+                }
             }
             chipGroup.addView(chip)
+        }
+    }
+
+    private fun eliminarEtiquetaDeNota(idEtiqueta: Int) {
+        val notaActual = nota ?: return
+        lifecycleScope.launch(Dispatchers.IO) {
+            App.database.etiquetaNotaDao().eliminarRelacion(idEtiqueta, notaActual.idNota)
+            val notaConEtiquetas = App.database.notaDao().obtenerNotaConEtiquetas(notaActual.idNota)
+            withContext(Dispatchers.Main) {
+                mostrarEtiquetas(notaConEtiquetas.etiquetas)
+            }
         }
     }
 

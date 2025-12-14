@@ -1,10 +1,12 @@
 package com.example.sgionoteskt.features.nota.view
 
-import android.animation.ValueAnimator
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.util.TypedValue
 import android.view.View
-import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.sgionoteskt.R
 import com.example.sgionoteskt.data.model.Nota
@@ -38,33 +40,46 @@ class NotaViewHolder(
 
         chipGroup.removeAllViews()
 
-        notaConEtiquetas.etiquetas.forEach { etiqueta ->
-            val chip = Chip(itemView.context).apply {
-                text = etiqueta.nombre
-                isClickable = false
-                isCheckable = false
-                setPadding(8, 4, 8, 4)
-            }
+        val etiquetas = notaConEtiquetas.etiquetas
+        val maxVisible = 3
+        val visibleTags = etiquetas.take(maxVisible)
+        val remaining = etiquetas.size - maxVisible
+        val themeColor = ContextCompat.getColor(itemView.context, R.color.startGradient)
+
+        visibleTags.forEach { etiqueta ->
+            val chip = createChip(etiqueta.nombre, themeColor)
             chipGroup.addView(chip)
         }
 
-        itemView.findViewById<HorizontalScrollView>(R.id.scrollChips)?.let { scroll ->
-            scroll.post {
-                val maxScroll = chipGroup.width - scroll.width
-                if (maxScroll <= 0) return@post
-
-                val animator = ValueAnimator.ofInt(0, maxScroll)
-                animator.duration = 8000L
-                animator.repeatMode = ValueAnimator.REVERSE
-                animator.repeatCount = ValueAnimator.INFINITE
-                animator.addUpdateListener { valueAnimator ->
-                    val scrollX = valueAnimator.animatedValue as Int
-                    scroll.scrollTo(scrollX, 0)
-                }
-                animator.start()
-            }
+        if (remaining > 0) {
+            val moreChip = createChip("+$remaining", themeColor)
+            chipGroup.addView(moreChip)
         }
     }
 
+    private fun createChip(text: String, strokeColor: Int): Chip {
+        return Chip(itemView.context).apply {
+            this.text = text
+            isClickable = false
+            isCheckable = false
+            setEnsureMinTouchTargetSize(false)
+            chipMinHeight = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 28f, resources.displayMetrics
+            )
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+            chipStartPadding = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics
+            )
+            chipEndPadding = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics
+            )
+            chipStrokeWidth = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics
+            )
+            chipStrokeColor = ColorStateList.valueOf(strokeColor)
+            chipBackgroundColor = ColorStateList.valueOf(Color.WHITE)
+            setTextColor(Color.DKGRAY)
+        }
+    }
 }
 

@@ -72,6 +72,11 @@ class MainActivity : AppCompatActivity() {
 
         loadFragment(notaFragment)
 
+        if (intent.getBooleanExtra("navigate_to_tags", false)) {
+            loadFragment(etiquetaFragment)
+            navigation.selectedItemId = R.id.tags
+        }
+
         navigation.setOnItemSelectedListener { item ->
             when(item.itemId) {
                 R.id.notes -> {

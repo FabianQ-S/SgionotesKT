@@ -1,60 +1,148 @@
 package com.example.sgionoteskt.features.etiqueta.view
 
+import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.sgionoteskt.R
+import com.example.sgionoteskt.app.App
+import com.example.sgionoteskt.data.model.Etiqueta
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [EtiquetaFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class EtiquetaFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: EtiquetaAdapter
+    private lateinit var txtVacio: TextView
+    private lateinit var etNuevaEtiqueta: EditText
+    private lateinit var btnAddTag: ImageView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_etiqueta, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment EtiquetaFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            EtiquetaFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        recyclerView = view.findViewById(R.id.rvEtiquetas)
+        txtVacio = view.findViewById(R.id.txtVacio)
+        etNuevaEtiqueta = view.findViewById(R.id.txtTagNew)
+        btnAddTag = view.findViewById(R.id.btnAddTag)
+
+        adapter = EtiquetaAdapter(
+            onFavoriteClick = { etiqueta -> toggleFavorito(etiqueta) },
+            onEditComplete = { etiqueta, nuevoNombre -> actualizarNombre(etiqueta, nuevoNombre) },
+            onDeleteClick = { etiqueta -> mostrarDialogoEliminar(etiqueta) }
+        )
+
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = adapter
+
+        btnAddTag.setOnClickListener {
+            agregarEtiqueta()
+        }
+
+        etNuevaEtiqueta.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEND) {
+                agregarEtiqueta()
+                true
+            } else {
+                false
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            App.database.etiquetaDao().obtenerEtiquetasFlow().collectLatest { etiquetas ->
+                adapter.submitList(etiquetas)
+                if (etiquetas.isEmpty()) {
+                    txtVacio.visibility = View.VISIBLE
+                    recyclerView.visibility = View.GONE
+                } else {
+                    txtVacio.visibility = View.GONE
+                    recyclerView.visibility = View.VISIBLE
                 }
             }
+        }
+    }
+
+    private fun agregarEtiqueta() {
+        val nombre = etNuevaEtiqueta.text.toString().trim()
+        if (nombre.isEmpty()) {
+            Toast.makeText(requireContext(), "Ingresa un nombre para la etiqueta", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            App.database.etiquetaDao().insertar(Etiqueta(nombre = nombre))
+            withContext(Dispatchers.Main) {
+                etNuevaEtiqueta.text.clear()
+                Toast.makeText(requireContext(), "Etiqueta creada", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun toggleFavorito(etiqueta: Etiqueta) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val nuevoEstado = if (etiqueta.esFavorito == 1) 0 else 1
+            val nuevaFecha = if (nuevoEstado == 1) System.currentTimeMillis() else null
+            App.database.etiquetaDao().actualizar(
+                etiqueta.copy(esFavorito = nuevoEstado, fechaFavorito = nuevaFecha)
+            )
+            withContext(Dispatchers.Main) {
+                val mensaje = if (nuevoEstado == 1) "Añadido a favoritos" else "Quitado de favoritos"
+                Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun actualizarNombre(etiqueta: Etiqueta, nuevoNombre: String) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            App.database.etiquetaDao().actualizar(etiqueta.copy(nombre = nuevoNombre))
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(), "Etiqueta actualizada", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun mostrarDialogoEliminar(etiqueta: Etiqueta) {
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setMessage("¿Está seguro de eliminar la etiqueta \"${etiqueta.nombre}\"?")
+        builder.setNegativeButton("Cancelar") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.setPositiveButton("Eliminar") { dialog, _ ->
+            eliminarEtiqueta(etiqueta)
+            dialog.dismiss()
+        }
+        val alertDialog = builder.create()
+        alertDialog.show()
+        alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(Color.parseColor("#4DD0E1"))
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(Color.RED)
+    }
+
+    private fun eliminarEtiqueta(etiqueta: Etiqueta) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            App.database.etiquetaDao().eliminar(etiqueta)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(requireContext(), "Etiqueta eliminada", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

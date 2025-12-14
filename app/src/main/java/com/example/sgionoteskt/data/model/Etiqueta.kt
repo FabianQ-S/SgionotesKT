@@ -10,6 +10,11 @@ data class Etiqueta(
     @ColumnInfo(name = "id_etiqueta")
     val idEtiqueta: Int = 0,
 
-    val nombre: String
-)
+    val nombre: String,
 
+    @ColumnInfo(name = "es_favorito")
+    val esFavorito: Int = 0,
+
+    @ColumnInfo(name = "fecha_favorito")
+    val fechaFavorito: Long? = null
+)
