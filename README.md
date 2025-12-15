@@ -15,8 +15,9 @@ Una aplicación Android moderna para crear, organizar y recordar notas asociadas
 - ⭐ **Favoritos**: Marca notas y etiquetas como favoritas para acceso rápido
 - 🗑️ **Papelera**: Eliminación lógica con opción de restauración
 - 💾 **Almacenamiento Local SQLite**: Acceso sin conexión garantizado
-- 🔄 **Sincronización Local**: Actualizaciones instantáneas en la UI
+- 🔄 **Sincronización Local**: Actualizaciones instantáneas en la UI mediante "LiveData" y "StateFlow"
 - 👤 **Perfil Local**: Nombre e ícono personalizable almacenados localmente
+- 🪗 **Prevencion de cuelges en la app**: mediante el uso de la tecnologia de corrutinas
 
 ## 🧱 Arquitectura
 
